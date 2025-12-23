@@ -3,9 +3,10 @@ from beanie import Document
 from pydantic import Field
 from datetime import datetime
 from typing import Optional
+from uuid import uuid4
 
 class Cliente(Document):
-    cliente_id: str = Field(..., unique=True)
+    cliente_id: str = Field(default_factory=lambda: str(uuid4()), unique=True)
     nombre: str
     email: str
     telefono: str

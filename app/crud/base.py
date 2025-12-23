@@ -24,6 +24,17 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
 
     async def create(self, *, obj_in: CreateSchemaType) -> ModelType:
         obj_in_data = obj_in.dict() if hasattr(obj_in, 'dict') else obj_in
+        model_fields = self.model.__fields__
+        
+        # Buscar campos que terminen en '_id' y no estén en los datos de entrada
+        for field_name, field in model_fields.items():
+            if (field_name.endswith('_id') and 
+                field_name not in obj_in_data and 
+                field.default is None and 
+                field.default_factory is None):
+                from uuid import uuid4
+                obj_in_data[field_name] = str(uuid4())
+        
         db_obj = self.model(**obj_in_data)
         await db_obj.create()
         return db_obj

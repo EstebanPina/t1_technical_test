@@ -1,9 +1,10 @@
 # app/schemas/tarjeta.py
-from pydantic import BaseModel, Field, validator
-from typing import Optional
+from datetime import datetime
+from pydantic import BaseModel, Field, validator, ConfigDict
+from typing import Optional, List, Any
 from uuid import UUID
+from bson import ObjectId
 from .base import BaseSchema
-
 class TarjetaBase(BaseSchema):
     cliente_id: UUID
     pan_masked: str = Field(..., description="Número de tarjeta enmascarado (ej. ************1234)")
@@ -30,12 +31,30 @@ class TarjetaUpdate(BaseModel):
     is_active: Optional[bool] = None
 
 class TarjetaInDB(TarjetaBase):
-    id: str
-    created_at: str
-    updated_at: str
-
-    class Config:
-        from_attributes = True
-
+    id: Any
+    created_at: datetime
+    updated_at: datetime
+    model_config = ConfigDict(
+        from_attributes=True,
+        json_encoders={
+            ObjectId: str,
+            datetime: lambda dt: dt.isoformat()
+        },
+        arbitrary_types_allowed=True
+    )
+    @validator('id')
+    def validate_id(cls, v):
+        # Convierte ObjectId a string
+        if hasattr(v, 'id'):
+            return str(v.id)
+        return str(v)
+class TarjetaGenerateRequest(BaseModel):
+    bin: str
+    count: int = Field(1, ge=1, le=50, description="Número de tarjetas a generar (máx. 50)")
+    length: int = Field(16, ge=13, le=19, description="Longitud de la tarjeta (13-19)")
+class TarjetaGenerateResponse(BaseModel):
+    cards: List[str]
+    bin: str
+    length: int
 class Tarjeta(TarjetaInDB):
     pass

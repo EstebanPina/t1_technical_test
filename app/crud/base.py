@@ -20,7 +20,11 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
     async def get_multi(
         self, *, skip: int = 0, limit: int = 100
     ) -> List[ModelType]:
-        return await self.model.find().skip(skip).limit(limit).to_list()
+        print("GetMulti")
+        print(f"Getting multiple {self.model.__name__} (skip={skip}, limit={limit})")
+        lista=await self.model.find().skip(skip).limit(limit).to_list()
+        print(lista)
+        return lista
 
     async def create(self, *, obj_in: CreateSchemaType) -> ModelType:
         obj_in_data = obj_in.dict() if hasattr(obj_in, 'dict') else obj_in

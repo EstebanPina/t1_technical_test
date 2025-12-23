@@ -1,3 +1,4 @@
+import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
@@ -7,10 +8,9 @@ from app.api.v1.api import api_router
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Startup: Initialize database
-    await init_db()
+    if os.getenv("PYTEST_RUNNING") != "1":
+        await init_db()
     yield
-    # Shutdown: Clean up resources if needed
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
@@ -19,16 +19,14 @@ app = FastAPI(
     lifespan=lifespan
 )
 
-# Set up CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # For development only
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Include API router
 app.include_router(api_router, prefix=settings.API_V1_STR)
 
 @app.get("/")

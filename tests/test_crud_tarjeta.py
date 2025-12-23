@@ -7,7 +7,7 @@ class TestCRUDTarjeta:
     async def test_create_tarjeta(self, test_cliente):
         # Test data
         tarjeta_data = {
-            "cliente_id": str(test_cliente.id),
+            "cliente_id": str(test_cliente.cliente_id),
             "pan": "5555555555554444",  # Mastercard test number
             "pan_masked": "************4444",
             "last4": "4444",
@@ -29,7 +29,7 @@ class TestCRUDTarjeta:
     
     async def test_get_tarjeta(self, test_tarjeta):
         # Get tarjeta by ID
-        tarjeta = await crud_tarjeta.tarjeta.get(id=test_tarjeta.id)
+        tarjeta = await crud_tarjeta.tarjeta.get(id=test_tarjeta.cliente_id)
         
         # Assertions
         assert tarjeta is not None

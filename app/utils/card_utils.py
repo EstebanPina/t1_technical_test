@@ -37,6 +37,12 @@ def is_valid_card(card_number: str) -> bool:
     Returns:
         bool: True si el número es válido, False en caso contrario.
     """
+    try:
+        int(card_number)
+    except ValueError:
+        return False
+    if len(card_number)==0:
+        return False
     return luhn_checksum(card_number) == 0
 
 def generate_card_number(bin: str, length: int = 16) -> str:
@@ -56,6 +62,9 @@ def generate_card_number(bin: str, length: int = 16) -> str:
     if not bin.isdigit():
         raise ValueError("El BIN debe contener solo dígitos")
     
+    if (length > 19 or length < 11):
+        raise ValueError("La longitud es mayor o menor a lo permitido")
+
     # Generar los dígitos aleatorios necesarios (excepto el último)
     random_length = length - len(bin) - 1
     if random_length < 0:
